@@ -1,4 +1,4 @@
-** UPDATE ** It seems like simp_le isn't really getting supported any more, whilst this version of the container still works (with the acme branch), I envisage it stopping working in the near future, and i'll have to update this to a different method of cert generation.  I'm open to pull requests :D
+**UPDATE** It seems like simp_le isn't really getting supported any more, whilst this version of the container still works (with the acme branch), I envisage it stopping working in the near future, and i'll have to update this to a different method of cert generation.  I'm open to pull requests :D
 
 # nginx
 This is an nginx reverse proxy designed to front microservices with HTTPS, using [letsencrypt](https://letsencrypt.org/).
