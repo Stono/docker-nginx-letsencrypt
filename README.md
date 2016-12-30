@@ -1,5 +1,10 @@
+** UPDATE ** It seems like simp_le isn't really getting supported any more, whilst this version of the container still works (with the acme branch), I envisage it stopping working in the near future, and i'll have to update this to a different method of cert generation.  I'm open to pull requests :D
+
 # nginx
 This is an nginx reverse proxy designed to front microservices with HTTPS, using [letsencrypt](https://letsencrypt.org/).
+
+## Volumes
+You need to persist your certificates, so mount the `/etc/letsencrypt/live` folder!
 
 ## Automatic certificate generation
 When the container boots, if no certificates are found, it will do the following:
@@ -19,6 +24,8 @@ services:
   nginx:
     image: stono/docker-nginx-letsencrypt 
     restart: always
+	volumes:
+	  - ./certs:/etc/letsencrypt/live
     environment:
       - HOST_WEBSITE1=website1.yourdomain.net,localhost:9000,default_server
       - HOST_DASHBOARD=website2.yourdomain.net,localhost:9001
