@@ -5,7 +5,8 @@ services:
     image: stono/docker-nginx-letsencrypt 
     restart: always
     environment:
-      - HOST_GATEWAY=karlstoney.com,localhost:9000,default_server
+      - HOST_KARLSTONEY=karlstoney.com,localhost:9000,default_server
+      - HOST_WWWKARLSTONEY=www.karlstoney.com,karlstoney.com,redirect
     ports:
-      - 443
-      - 80
+      - 443:443
+      - 80:80

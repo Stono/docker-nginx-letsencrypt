@@ -78,6 +78,7 @@ RUN mkdir -p /etc/nginx/conf.d
 COPY nginx.conf /etc/nginx/nginx.conf
 RUN mkdir -p /usr/local/etc/nginx
 COPY ssl.default.conf /usr/local/etc/nginx
+COPY redirect.default.conf /usr/local/etc/nginx
 COPY start_nginx.sh /usr/local/bin/
 
 EXPOSE 80

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 function finish {
     echo "Detected SIGTERM, Gracefully Shutting Down..."
     sleep 2
@@ -30,7 +31,7 @@ function generate_self_signed() {
       -days 365 \
       -nodes \
       -x509 \
-      -subj "/C=UK/ST=Manchester/L=UK/O=ThoughtWorks/CN=$FQDN" \
+      -subj "/C=UK/ST=Manchester/L=UK/O=Unknown/CN=$FQDN" \
       -keyout key.pem \
       -out fullchain.pem
   fi
@@ -62,6 +63,15 @@ function write_nginx_config() {
   sed -i "s/UPSTREAM/$UPSTREAM/g" /etc/nginx/conf.d/$FQDN.conf
   sed -i "s/DEFAULT/$DEFAULT/g" /etc/nginx/conf.d/$FQDN.conf
   sed -i "s/NAMESERVER/$NAMESERVER/g" /etc/nginx/conf.d/$FQDN.conf
+  cat /etc/nginx/conf.d/$FQDN.conf 
+}
+
+function write_redirect_config() {
+  echo Writing nginx redirect config for $FQDN with a redirect of $UPSTREAM
+  NAMESERVER=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}')
+  cp /usr/local/etc/nginx/redirect.default.conf /etc/nginx/conf.d/$FQDN.conf
+  sed -i "s/FQDN/$FQDN/g" /etc/nginx/conf.d/$FQDN.conf 
+  sed -i "s/UPSTREAM/$UPSTREAM/g" /etc/nginx/conf.d/$FQDN.conf
   cat /etc/nginx/conf.d/$FQDN.conf 
 }
 
@@ -100,7 +110,11 @@ for i in "${!HOSTS[@]}"; do
     if [[ $((j % 2)) == 1 ]]; then
       extract_info
       generate_self_signed
-      write_nginx_config
+      if [ "$DEFAULT" = "redirect" ]; then
+		write_redirect_config
+      else
+        write_nginx_config
+	  fi
     fi
   done
 done

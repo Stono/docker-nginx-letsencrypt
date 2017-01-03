@@ -36,7 +36,29 @@ services:
 	  - ./certs:/etc/letsencrypt/live
     environment:
       - HOST_WEBSITE1=website1.yourdomain.net,localhost:9000,default_server
-      - HOST_DASHBOARD=website2.yourdomain.net,localhost:9001
+      - HOST_WEBSITE2=website2.yourdomain.net,localhost:9001
+      - LETSENCRYPT_EMAIL=youremail@yourdomain.com
+      - LETSENCRYPT=true
+    ports:
+      - 443
+      - 80
+```
+
+## Redirecting
+You can redirect domains too, for example - www.karlstoney.com to karlstoney.com by using `redirect` at the end of your host declaration:
+
+```
+version: '2'
+
+services:
+  nginx:
+    image: stono/docker-nginx-letsencrypt 
+    restart: always
+	volumes:
+	  - ./certs:/etc/letsencrypt/live
+    environment:
+      - HOST_WEBSITE1=website1.yourdomain.net,localhost:9000,default_server
+      - HOST_WEBSITE2=website2.yourdomain.net,website1.yourdomain.net,redirect
       - LETSENCRYPT_EMAIL=youremail@yourdomain.com
       - LETSENCRYPT=true
     ports:
