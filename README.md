@@ -37,6 +37,8 @@ services:
     environment:
       - HOST_WEBSITE1=website1.yourdomain.net,localhost:9000,default_server
       - HOST_DASHBOARD=website2.yourdomain.net,localhost:9001
+      - LETSENCRYPT_EMAIL=youremail@yourdomain.com
+      - LETSENCRYPT=true
     ports:
       - 443
       - 80
