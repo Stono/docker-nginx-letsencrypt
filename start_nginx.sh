@@ -39,6 +39,7 @@ function generate_self_signed() {
 
 generate_lets_encrypt() {
   if [ "$LETSENCRYPT" == "true" ]; then
+	set +e
     echo Running simp_le letsencrypt for $FQDN
     cd /etc/letsencrypt/live/$FQDN
     simp_le \
@@ -49,6 +50,7 @@ generate_lets_encrypt() {
       -d $FQDN \
       --default_root /usr/share/nginx/html \
       --tos_sha256 6373439b9f29d67a5cd4d18cbc7f264809342dbf21cb2ba2fc7588df987a6221 
+	set -e
   else
     echo Letsencrypt generation has been skipped.
   fi
