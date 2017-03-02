@@ -1,17 +1,22 @@
-FROM centos:7 
+FROM centos:7
 MAINTAINER Karl Stoney <me@karlstoney.com>
 
-COPY scripts/* /usr/local/bin/
-RUN mkdir -p /storage
-VOLUME ["/storage"]
-WORKDIR /storage
+# iputils causes the build to fail because of some incompatibility between
+# docker hosts running on ubuntu, aufs and centos.
+# Details: https://github.com/docker/docker/issues/6980
+RUN yum -y -q update && \
+    yum -y -q remove iputils && \
+    yum -y -q install wget epel-release openssl openssl-devel tar unzip \
+							libffi-devel python-devel redhat-rpm-config \
+							gcc gcc-c++ make zlib-devel pcre-devel ca-certificates && \
+    yum -y -q clean all
 
+# Setup the nginx user and groups
 RUN groupadd nginx && \
     useradd -g nginx nginx
 
 # Download the latest source and build it
-RUN yum -y -q install gcc gcc-c++ make zlib-devel pcre-devel openssl-devel tar wget epel-release && \
-    nginxVersion="1.11.5" && \
+RUN nginxVersion="1.11.10" && \
     cd /usr/local/src && \
     wget --quiet http://nginx.org/download/nginx-$nginxVersion.tar.gz && \
     tar -xzf nginx-$nginxVersion.tar.gz && \
@@ -38,50 +43,57 @@ RUN yum -y -q install gcc gcc-c++ make zlib-devel pcre-devel openssl-devel tar w
       --without-http_fastcgi_module      && \
     make && \
     make install && \
-    rm -rf /usr/local/src/nginx* && \
-    yum -y -q autoremove gcc gcc-c++ make zlib-devel pcre-devel openssl-devel && \
-    yum -y -q clean all
-
-# Setup directories and ownership, as well as allowing nginx to bind to low ports
-RUN mkdir -p /var/log/nginx && \
-    mkdir -p /var/run/nginx && \
-    mkdir -p /usr/share/nginx && \
-    chown -R nginx:nginx /var/log/nginx && \
-    chown -R nginx:nginx /var/run/nginx && \
-    chown -R nginx:nginx /etc/nginx && \
-    chown -R nginx:nginx /usr/share/nginx
-
-# Temporarily removed this, see https://github.com/docker/docker/issues/20658
-# RUN setcap 'cap_net_bind_service=+ep' /usr/sbin/nginx
+    rm -rf /usr/local/src/nginx*
 
 # Add latest pip
 RUN wget --quiet https://bootstrap.pypa.io/get-pip.py && \
     python get-pip.py
 
 # Download and setup lets encrypt
-RUN yum -y -q install ca-certificates libffi-devel openssl-devel python-devel redhat-rpm-config git make gcc gcc-c++ && \
+RUN yum -y -q install git-core && \
     pip install 'acme>=0.4.1,<0.9' && \
     mkdir -p /tmp/src && \
-    git clone https://github.com/kuba/simp_le.git /tmp/src/simp_le && \
+    git clone https://github.com/zenhack/simp_le /tmp/src/simp_le && \
     cd /tmp/src/simp_le && \
-    git checkout acme-0.8 && \
     python ./setup.py install && \
-    yum -y -q autoremove gcc gcc-c++ make git redhat-rpm-config && \
+    yum -y -q remove git-core && \
     yum -y -q clean all
 
-# Generate a temporary self signed certificate until letsencrypt works
-RUN yum -y -q install openssl && \
-    yum -y -q clean all
+# Remove build tools from a public facing weberver
+RUN yum -y -q remove gcc gcc-c++ make && \
+    yum -y -q install openssl
+
+# Setup directories and ownership, as well as allowing nginx to bind to low ports
+RUN mkdir -p /var/log/nginx && \
+    mkdir -p /var/run/nginx && \
+    mkdir -p /usr/share/nginx && \
+    mkdir -p /etc/nginx/conf.d && \
+    mkdir -p /usr/local/etc/nginx && \
+    mkdir -p /etc/letsencrypt && \
+    mkdir -p /mnt/live && \
+    mkdir -p /mnt/html && \
+    rm -rf /usr/share/nginx/html && \
+    ln -sf /mnt/live /etc/letsencrypt/live && \
+    ln -sf /mnt/html /usr/share/nginx/html && \
+    chown -R nginx:nginx /var/log/nginx && \
+    chown -R nginx:nginx /var/run/nginx && \
+    chown -R nginx:nginx /usr/share/nginx && \
+    chown -R nginx:nginx /etc/nginx && \
+    chown -R nginx:nginx /usr/local/etc/nginx && \
+    chown -R nginx:nginx /etc/letsencrypt && \
+    chown -R nginx:nginx /mnt
 
 # Setup NGINX configuration
-RUN mkdir -p /etc/nginx/conf.d
 COPY nginx.conf /etc/nginx/nginx.conf
-RUN mkdir -p /usr/local/etc/nginx
 COPY ssl.default.conf /usr/local/etc/nginx
 COPY redirect.default.conf /usr/local/etc/nginx
-COPY start_nginx.sh /usr/local/bin/
 
 EXPOSE 80
 EXPOSE 443
+
+COPY scripts/* /usr/local/bin/
+
+RUN setcap 'cap_net_bind_service=+ep' /usr/sbin/nginx
+USER nginx
 
 CMD ["/usr/local/bin/start_nginx.sh"]
