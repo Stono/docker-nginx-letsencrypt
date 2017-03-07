@@ -1,5 +1,7 @@
 #!/bin/bash
 sleep 2
+mkdir -p /mnt/live
+mkdir -p /mnt/html
 
 source /usr/local/bin/nginx_common.sh
 set -e
