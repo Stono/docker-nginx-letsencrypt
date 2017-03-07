@@ -6,8 +6,8 @@ NEW_LE=0
 generate_lets_encrypt() {
   set +e
   info "Running simp_le letsencrypt for $FQDN"
-  mkdir -p /etc/letsencrypt/live/$FQDN
-  cd /etc/letsencrypt/live/$FQDN
+  mkdir -p /mnt/live/$FQDN
+  cd /mnt/live/$FQDN
   simp_le \
     --email $LETSENCRYPT_EMAIL \
     -f account_key.json \

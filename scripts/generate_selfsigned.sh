@@ -2,8 +2,8 @@
 source /usr/local/bin/nginx_common.sh
 set -e
 
-mkdir -p /etc/letsencrypt/live/$FQDN
-cd /etc/letsencrypt/live/$FQDN
+mkdir -p /mnt/live/$FQDN
+cd /mnt/live/$FQDN
 
 if [ -f "fullchain.pem" ]; then
   info "A certificate already exists for $FQDN, skipping self signed generation."

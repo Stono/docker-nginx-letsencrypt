@@ -18,8 +18,8 @@ function finish {
 trap finish TERM INT
 
 function generate_self_signed() {
-  mkdir -p /etc/letsencrypt/live/$FQDN
-  cd /etc/letsencrypt/live/$FQDN
+  mkdir -p /mnt/live/$FQDN
+  cd /mnt/live/$FQDN
 
   if [ -f "fullchain.pem" ]; then
     echo A certificate already exists for $FQDN, skipping self signed generation.
@@ -41,7 +41,7 @@ generate_lets_encrypt() {
   if [ "$LETSENCRYPT" == "true" ]; then
 	set +e
     echo Running simp_le letsencrypt for $FQDN
-    cd /etc/letsencrypt/live/$FQDN
+    cd /mnt/live/$FQDN
     simp_le \
       --email $LETSENCRYPT_EMAIL \
       -f account_key.json \
