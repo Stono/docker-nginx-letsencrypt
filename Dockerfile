@@ -15,6 +15,32 @@ RUN yum -y -q update && \
 RUN groupadd nginx && \
     useradd -g nginx nginx
 
+# Download LUA JIT
+RUN cd /tmp && \
+		wget --quiet http://luajit.org/download/LuaJIT-2.1.0-beta2.tar.gz && \
+		tar xzf Lua* && \
+		cd Lua* && \
+		make && \
+		make install && \
+		rm -rf /tmp/Lua*
+
+ENV LUAJIT_LIB=/usr/local/lib
+ENV LUAJIT_INC=/usr/local/include/luajit-2.1
+
+# Download NGX Dev kit
+RUN cd /tmp && \
+		wget --quiet https://github.com/simpl/ngx_devel_kit/archive/v0.3.0.tar.gz && \
+		tar xzf v0.3.0* && \
+		mv ngx_devel_kit* /usr/local/src/ngx-devel-kit && \
+		rm -f v0.3.0*
+
+# Download NGX_Lua
+RUN cd /tmp && \
+		wget --quiet https://github.com/openresty/lua-nginx-module/archive/v0.10.7.tar.gz && \
+		tar xzf v0.10.7* && \
+		mv lua-nginx-module* /usr/local/src/lua-nginx-module && \
+		rm -f v0.10.7*
+
 # Download the latest source and build it
 RUN nginxVersion="1.11.10" && \
     cd /usr/local/src && \
@@ -23,24 +49,27 @@ RUN nginxVersion="1.11.10" && \
     ln -sf nginx-$nginxVersion nginx && \
     cd nginx && \
     ./configure \
-      --user=nginx                          \
-      --group=nginx                         \
-      --prefix=/usr/share/nginx                   \
-      --sbin-path=/usr/sbin/nginx           \
-      --conf-path=/etc/nginx/nginx.conf     \
-      --pid-path=/var/run/nginx/nginx.pid         \
-      --lock-path=/var/run/nginx/nginx.lock       \
-      --error-log-path=/var/log/nginx/error.log \
-      --http-log-path=/var/log/nginx/access.log \
-      --with-http_gzip_static_module        \
-      --with-http_stub_status_module        \
-      --with-http_ssl_module                \
-      --with-pcre                           \
-      --with-file-aio                       \
-      --with-http_realip_module             \
-      --without-http_scgi_module            \
-      --without-http_uwsgi_module           \
-      --without-http_fastcgi_module      && \
+      --with-ld-opt="-Wl,-rpath,$LUAJIT_LIB" \
+      --add-module=/usr/local/src/lua-nginx-module 					\
+      --add-module=/usr/local/src/ngx-devel-kit							\
+      --user=nginx                          								\
+      --group=nginx                        	 								\
+      --prefix=/usr/share/nginx                   					\
+      --sbin-path=/usr/sbin/nginx           								\
+      --conf-path=/etc/nginx/nginx.conf     								\
+      --pid-path=/var/run/nginx/nginx.pid         					\
+      --lock-path=/var/run/nginx/nginx.lock       					\
+      --error-log-path=/var/log/nginx/error.log 						\
+      --http-log-path=/var/log/nginx/access.log 						\
+      --with-http_gzip_static_module        								\
+      --with-http_stub_status_module        								\
+      --with-http_ssl_module                								\
+      --with-pcre                           								\
+      --with-file-aio                       								\
+      --with-http_realip_module             								\
+      --without-http_scgi_module            								\
+      --without-http_uwsgi_module           								\
+      --without-http_fastcgi_module      								 && \
     make && \
     make install && \
     rm -rf /usr/local/src/nginx*
