@@ -30,11 +30,12 @@ for_each_host() {
     FQDN=${SPLIT[0]}
     UPSTREAM=${SPLIT[1]}
     DEFAULT=${SPLIT[2]}
-
+		TARGETPATH=${SPLIT[3]}	
     echo "$UPSTREAMNAME:"
     echo "  -> FQDN: $FQDN"
     echo "  -> UPSTREAM: $UPSTREAM"
     echo "  -> DEFAULT: $DEFAULT"
+    echo "  -> TARGETPATH: $TARGETPATH"
     $1
   done
 }

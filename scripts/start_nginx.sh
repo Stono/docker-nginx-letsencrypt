@@ -29,8 +29,9 @@ function write_nginx_config() {
 	cp /usr/local/etc/nginx/ssl.default.conf /etc/nginx/conf.d/$FQDN.conf
 	sed -i "s/FQDN/$FQDN/g" /etc/nginx/conf.d/$FQDN.conf
 	sed -i "s/UPSTREAMNAME/$UPSTREAMNAME/g" /etc/nginx/conf.d/$FQDN.conf
-	sed -i "s/UPSTREAM/$UPSTREAM/g" /etc/nginx/conf.d/$FQDN.conf
+	sed -i "s|UPSTREAM|$UPSTREAM|g" /etc/nginx/conf.d/$FQDN.conf
 	sed -i "s/DEFAULT/$DEFAULT/g" /etc/nginx/conf.d/$FQDN.conf
+	sed -i "s|TARGETPATH|$TARGETPATH|g" /etc/nginx/conf.d/$FQDN.conf
 	sed -i "s/NAMESERVER/$NAMESERVER/g" /etc/nginx/conf.d/$FQDN.conf
 }
 

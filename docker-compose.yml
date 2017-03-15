@@ -7,6 +7,7 @@ services:
     environment:
       - HOST_KARLSTONEY=karlstoney.com,localhost:9000,default_server
       - HOST_WWWKARLSTONEY=www.karlstoney.com,karlstoney.com,redirect
+      - HOST_ANOTHER=another.com,localhost:9000,,/another
     ports:
       - 443:443
       - 80:80

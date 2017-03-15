@@ -123,6 +123,5 @@ EXPOSE 443
 COPY scripts/* /usr/local/bin/
 
 RUN setcap 'cap_net_bind_service=+ep' /usr/sbin/nginx
-USER nginx
 
 CMD ["/usr/local/bin/start_nginx.sh"]
