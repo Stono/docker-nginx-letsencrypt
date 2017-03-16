@@ -30,13 +30,12 @@ let doSslSite = site => {
     };
   });
 
-  site.paths = site.paths.map(path => {
-    let pathName = Object.keys(path)[0];
+  site.paths = Object.keys(site.paths).map(route => {
     return {
-      path: pathName,
-      upstream: path[pathName],
+      path: route,
+      upstream: site.paths[route],
       fqdn: site.fqdn
-    };
+    }
   });
 
   let result = sslSource(site);
@@ -50,7 +49,7 @@ let doRedirectSite = site => {
 
 Object.keys(config).forEach(key => {
   let site = config[key];
-  target = "/etc/nginx/conf.d/" + site.fqdn + ".conf"; 
+  target = "/etc/nginx/conf.d/" + site.fqdn + ".conf";
   doSelfSigned(site.fqdn);
   if(site.redirect) {
     doRedirectSite(site);

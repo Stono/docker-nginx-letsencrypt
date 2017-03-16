@@ -43,9 +43,9 @@ You can add as many hosts as you want
     "upstreams": {
       "webapp": "kstoney.web.svc.cluster.local:8080"
     },
-    "paths": [{
+    "paths": {
       "/": "webapp" 
-    }]
+    }
   }
 }
 ```
