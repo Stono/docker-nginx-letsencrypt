@@ -23,6 +23,34 @@ You can host multiple domains on the same NGINX:443 host (see the example below)
 
 The default server part is important, as we're hosting multiple SSL certificates on the same IP, Nginx will use [SNI](https://en.wikipedia.org/wiki/Server_Name_Indication) to serve up the relevant endpoint.  If the client doesn't support SNI (for example, my curl client on macosx?!) then you'll get the default server.
 
+## Config file
+__IMPORTANT__: Breaking change in `1.11.10-5`, we now use a configuration file, rather than loads of environment variables, this allows for more configuration.  You need to make sure you mount `/config/config.json`.
+
+This is an example of a two host configuration, one is `karlstoney.com`, which upstreams to `kstoney.web.svc.cluster.local:8000`, and then the other `www.karlstoney.com`, which just redirects to `karlstoney.com`. 
+
+You can add as many hosts as you want
+
+```
+{
+  "www": {
+    "fqdn": "www.karlstoney.com",
+    "redirect": "https://karlstoney.com"
+  },
+  "root": {
+    "fqdn": "karlstoney.com",
+    "default": "true",
+    "redirectInsecure": "true",
+    "upstreams": {
+      "webapp": "kstoney.web.svc.cluster.local:8080"
+    },
+    "paths": [{
+      "/": "webapp" 
+    }]
+  }
+}
+```
+
+And then have a docker-compose file like this: 
 ```
 version: '2'
 
@@ -33,30 +61,6 @@ services:
 	volumes:
 	  - ./certs:/etc/letsencrypt/live
     environment:
-      - HOST_WEBSITE1=website1.yourdomain.net,localhost:9000,default_server
-      - HOST_WEBSITE2=website2.yourdomain.net,localhost:9001
-      - LETSENCRYPT_EMAIL=youremail@yourdomain.com
-      - LETSENCRYPT=true
-    ports:
-      - 443
-      - 80
-```
-
-## Redirecting
-You can redirect domains too, for example - www.karlstoney.com to karlstoney.com by using `redirect` at the end of your host declaration:
-
-```
-version: '2'
-
-services:
-  nginx:
-    image: stono/docker-nginx-letsencrypt
-    restart: always
-	volumes:
-	  - ./certs:/etc/letsencrypt/live
-    environment:
-      - HOST_WEBSITE1=website1.yourdomain.net,localhost:9000,default_server
-      - HOST_WEBSITE2=website2.yourdomain.net,website1.yourdomain.net,redirect
       - LETSENCRYPT_EMAIL=youremail@yourdomain.com
       - LETSENCRYPT=true
     ports:
