@@ -49,8 +49,8 @@ let doRedirectSite = site => {
 };
 
 Object.keys(config).forEach(key => {
-  target = "/etc/nginx/conf.d/" + key + ".conf"; 
   let site = config[key];
+  target = "/etc/nginx/conf.d/" + site.fqdn + ".conf"; 
   doSelfSigned(site.fqdn);
   if(site.redirect) {
     doRedirectSite(site);
@@ -58,6 +58,10 @@ Object.keys(config).forEach(key => {
     doSslSite(site);
   }
   execSync('nginx -s reload');
-  doLetsEncrypt(site.fqdn);
-  execSync('nginx -s reload');
+  if(process.env.LETSENCRYPT === 'true') {
+    doLetsEncrypt(site.fqdn);
+    execSync('nginx -s reload');
+  } else {
+    console.log('Skipping LetsEncrypt');
+  }
 });
