@@ -1,0 +1,30 @@
+{
+  "name": "simple-node-app",
+  "description": "The best project ever.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/kstoney/simple-node-app",
+  "author": {
+    "name": "Karl Stoney",
+    "email": "me@karlstoney.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kstoney/simple-node-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kstoney/simple-node-app/issues"
+  },
+  "main": "lib/simple-node-app",
+  "engines": {
+    "node": ">= 7.0.0"
+  },
+  "scripts": {
+    "start": "./node_modules/http-server/bin/http-server ./html"
+  },
+  "devDependencies": {},
+  "keywords": [],
+  "license": "MIT",
+  "dependencies": {
+    "handlebars": "^4.0.6"
+  }
+}

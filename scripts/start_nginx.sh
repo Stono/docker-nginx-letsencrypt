@@ -23,48 +23,14 @@ function finish {
 }
 trap finish TERM INT
 
-function write_nginx_config() {
-	info "Writing nginx config for $FQDN with an upstream of $UPSTREAM"
-	NAMESERVER=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}')
-	cp /usr/local/etc/nginx/ssl.default.conf /etc/nginx/conf.d/$FQDN.conf
-	sed -i "s/FQDN/$FQDN/g" /etc/nginx/conf.d/$FQDN.conf
-	sed -i "s/UPSTREAMNAME/$UPSTREAMNAME/g" /etc/nginx/conf.d/$FQDN.conf
-	sed -i "s|UPSTREAM|$UPSTREAM|g" /etc/nginx/conf.d/$FQDN.conf
-	sed -i "s/DEFAULT/$DEFAULT/g" /etc/nginx/conf.d/$FQDN.conf
-	sed -i "s|TARGETPATH|$TARGETPATH|g" /etc/nginx/conf.d/$FQDN.conf
-	sed -i "s/NAMESERVER/$NAMESERVER/g" /etc/nginx/conf.d/$FQDN.conf
-}
-
-function write_redirect_config() {
-	echo Writing nginx redirect config for $FQDN with a redirect of $UPSTREAM
-	NAMESERVER=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}')
-	cp /usr/local/etc/nginx/redirect.default.conf /etc/nginx/conf.d/$FQDN.conf
-	sed -i "s/FQDN/$FQDN/g" /etc/nginx/conf.d/$FQDN.conf
-	sed -i "s/UPSTREAM/$UPSTREAM/g" /etc/nginx/conf.d/$FQDN.conf
-	cat /etc/nginx/conf.d/$FQDN.conf
-}
-
-do_self_signed() {
-	. /usr/local/bin/generate_selfsigned.sh
-	if [ "$DEFAULT" = "redirect" ]; then
-		write_redirect_config
-	else
-		write_nginx_config
-	fi
-}
-for_each_host do_self_signed
-
-test_nginx_config
 start_nginx
-
-if [ "$LETSENCRYPT" == "true" ]; then
-	. /usr/local/bin/generate_letsencrypt.sh
-	test_nginx_config
-	reload_nginx
-else
-	info "LetsEncrypt is not enabled."
+if [ ! -f "/config/config.json" ]; then
+  echo "You must specify /config/config.json"
+  exit 1
 fi
+node /template/template.js
 
 sleep 2
+echo "Nginx setup complete"
 touch /tmp/ready
 wait $parent

@@ -1,6 +1,10 @@
-#!/bin/bash
+#!/bin/bashi
 source /usr/local/bin/nginx_common.sh
-set -e
+FQDN=$1
+if [ "$FQDN" = "" ]; then
+  echo "No FQDN supplied"
+  exit 1
+fi
 
 mkdir -p /mnt/live/$FQDN
 cd /mnt/live/$FQDN
@@ -15,7 +19,7 @@ else
     -days 365 \
     -nodes \
     -x509 \
-    -subj "/C=UK/ST=Manchester/L=UK/O=ThoughtWorks/CN=$FQDN" \
+    -subj "/C=UK/ST=SelfSigned/L=UK/O=SelfSigned/CN=$FQDN" \
     -keyout key.pem \
     -out fullchain.pem
 fi

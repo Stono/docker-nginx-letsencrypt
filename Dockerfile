@@ -112,6 +112,15 @@ RUN mkdir -p /var/log/nginx && \
     chown -R nginx:nginx /etc/letsencrypt && \
     chown -R nginx:nginx /mnt
 
+# Get nodejs repos
+RUN curl --silent --location https://rpm.nodesource.com/setup_7.x | bash -
+RUN yum -y -q install nodejs
+RUN npm install -g handlebars
+RUN mkdir -p /template
+COPY template/package.json /template/package.json
+RUN cd /template && \
+    npm install
+
 # Setup NGINX configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY ssl.default.conf /usr/local/etc/nginx
@@ -121,6 +130,7 @@ EXPOSE 80
 EXPOSE 443
 
 COPY scripts/* /usr/local/bin/
+COPY template/template.js /template/template.js
 
 RUN setcap 'cap_net_bind_service=+ep' /usr/sbin/nginx
 
