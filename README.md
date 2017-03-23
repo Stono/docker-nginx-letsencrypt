@@ -67,6 +67,19 @@ services:
       - 443
       - 80
 ```
+### Configuration options
+There are some mandatory paramters on a site:
+
+  - fqdn: The FQDN of your domain
+  - upstreams: The definition of the site upstreams 
+  - paths: the paths to send to the upstreams
+
+There are some optional paramters:
+
+  - default: Should this be the default site for none FQDN matches
+  - redirectInsecure: Should we send port 80 requests to 443
+  - useHsts: Should the https site send a HSTS header
+  - other_server: Arbitary lines to add to the server block
 
 ## Volumes
 You need to persist your certificates, so mount the `/etc/letsencrypt` folder!

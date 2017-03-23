@@ -121,17 +121,19 @@ COPY template/package.json /template/package.json
 RUN cd /template && \
     npm install
 
-# Setup NGINX configuration
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY ssl.default.conf /usr/local/etc/nginx
-COPY redirect.default.conf /usr/local/etc/nginx
+RUN setcap 'cap_net_bind_service=+ep' /usr/sbin/nginx
 
 EXPOSE 80
 EXPOSE 443
 
+# Setup NGINX configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
 COPY scripts/* /usr/local/bin/
 COPY template/template.js /template/template.js
 
-RUN setcap 'cap_net_bind_service=+ep' /usr/sbin/nginx
+# Copy default conf
+COPY ssl.default.conf /usr/local/etc/nginx
+COPY redirect.default.conf /usr/local/etc/nginx
 
 CMD ["/usr/local/bin/start_nginx.sh"]
