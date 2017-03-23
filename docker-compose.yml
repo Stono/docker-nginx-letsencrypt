@@ -5,10 +5,11 @@ services:
     image: stono/docker-nginx-letsencrypt 
     restart: always
     volumes:
-      - ./config.json:/config/config.json
+      - ./config.js:/config/config.js
     environment:
       - LETSENCRYPT=true
       - LETSENCRYPT_EMAIL=test@test.com
+      - DOMAIN_SUFFIX=preprod.
     ports:
       - 443:443
       - 80:80

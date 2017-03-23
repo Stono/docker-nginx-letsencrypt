@@ -24,8 +24,8 @@ function finish {
 trap finish TERM INT
 
 start_nginx
-if [ ! -f "/config/config.json" ]; then
-  echo "You must specify /config/config.json"
+if [ ! -f "/config/config.json" ] && [ ! -f "/config/config.js" ]; then
+  echo "You must specify /config/config.json or /config/config.js"
   exit 1
 fi
 node /template/template.js

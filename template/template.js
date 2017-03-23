@@ -1,10 +1,18 @@
 let Handlebars = require('handlebars');
-let config = require('/config/config.json');
 let fs = require('fs');
 let sslTemplate = fs.readFileSync('/usr/local/etc/nginx/ssl.default.conf', 'utf-8');
 let redirectTemplate = fs.readFileSync('/usr/local/etc/nginx/redirect.default.conf', 'utf-8');
 let sslSource = Handlebars.compile(sslTemplate);
 let redirectSource = Handlebars.compile(redirectTemplate);
+let config;
+
+if(fs.existsSync('/config/config.json')) {
+  config = require('/config/config.json');
+};
+
+if(fs.existsSync('/config/config.js')) {
+  config = require('/config/config.js');
+};
 
 let execSync = require('child_process').execSync;
 let target;
