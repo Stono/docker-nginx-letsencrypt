@@ -1,5 +1,7 @@
 # nginx
-This is an nginx reverse proxy designed to front microservices with valid HTTPS certificates for free, using [letsencrypt](https://letsencrypt.org/).
+The purpose of this repository is to create an easy to use Nginx reverse proxy, which can generate certificates using letsencrypt [letsencrypt](https://letsencrypt.org/), and also give you a nice shiny a+ on observatory.
+
+![observatory](observatory.png)
 
 ## Automatic certificate generation
 When the container boots, if no certificates are found, it will do the following:
@@ -24,28 +26,31 @@ You can host multiple domains on the same NGINX:443 host (see the example below)
 The default server part is important, as we're hosting multiple SSL certificates on the same IP, Nginx will use [SNI](https://en.wikipedia.org/wiki/Server_Name_Indication) to serve up the relevant endpoint.  If the client doesn't support SNI (for example, my curl client on macosx?!) then you'll get the default server.
 
 ## Config file
-__IMPORTANT__: Breaking change in `1.11.10-5`, we now use a configuration file, rather than loads of environment variables, this allows for more configuration.  You need to make sure you mount `/config/config.json`.
+__IMPORTANT__: Breaking change in `1.11.10-5`, we now use a configuration file, rather than loads of environment variables, this allows for more configuration.  You need to make sure you mount `/config/config.js`.
 
-This is an example of a two host configuration, one is `karlstoney.com`, which upstreams to `kstoney.web.svc.cluster.local:8000`, and then the other `www.karlstoney.com`, which just redirects to `karlstoney.com`. 
+This is an example of a two host configuration, one is `karlstoney.com`, which upstreams to `app:2368`, and then the other `www.karlstoney.com`, which just redirects to `karlstoney.com`.  It's actually the configuration I use on my blog [karlstoney.com](https://karlstoney.com). 
 
-You can add as many hosts as you want
+You can add as many hosts as you want.
 
 ```
-{
-  "www": {
-    "fqdn": "www.karlstoney.com",
-    "redirect": "https://karlstoney.com"
-  },
-  "root": {
-    "fqdn": "karlstoney.com",
-    "default": "true",
-    "redirectInsecure": "true",
-    "upstreams": {
-      "webapp": "kstoney.web.svc.cluster.local:8080"
+module.exports = {
+  karlstoney: {
+    fqdn: 'karlstoney.com',
+    redirectInsecure: true,
+    useHsts: true,
+    useCsp: true,
+    csp: "default-src 'self' wss: https://fonts.gstatic.com https://fonts.googleapis.com https://code.jquery.com https://s3-eu-west-1.amazonaws.com https://karlstoney.disqus.com 'nonce-$cspNonce'",
+    default: true,
+    upstreams: {
+      root: 'app:2368'
     },
-    "paths": {
-      "/": "webapp" 
+    paths: {
+      '/': 'root'
     }
+  },
+  www: {
+    fqdn: 'www.karlstoney.com',
+    redirect: 'https://karlstoney.com'
   }
 }
 ```
@@ -60,6 +65,7 @@ services:
     restart: always
 	volumes:
 	  - ./certs:/etc/letsencrypt/live
+    - ./config.js:/config/config.js
     environment:
       - LETSENCRYPT_EMAIL=youremail@yourdomain.com
       - LETSENCRYPT=true
@@ -67,6 +73,7 @@ services:
       - 443
       - 80
 ```
+
 ### Configuration options
 There are some mandatory paramters on a site:
 
@@ -80,8 +87,27 @@ There are some optional paramters:
   - redirectInsecure: Should we send port 80 requests to 443
   - useHsts: Should the https site send a HSTS header
   - useCsp: Will enable the Content-Security-Policy header with the reccomended default policy "default-src 'none'; img-src 'self'; script-src 'self'; style-src 'self'"
-  - csp: Override the csp string 
+  - csp: Override the csp string
   - other_server: Arbitary lines to add to the server block
+
+#### Notes about Content Security Policy
+Nginx has been compiled to generate a Content Security Policy nonce, this is expose in the nginx configuration as $cspNonce.  Nginx will look through your upstream and effectively find and replace a `**CSP_NONCE**` string, with the actual nonce.  This will allow you to use inline blocks and styles if you need to, for example:
+
+This would not execute:
+
+```
+<script>
+  alert('hi');
+</script>
+```
+
+Whereas this would:
+```
+<script nonce='**CSP_NONCE**'>
+  alert('hi');
+</script>
+
+```
 
 ## Volumes
 You need to persist your certificates, so mount the `/etc/letsencrypt` folder!
