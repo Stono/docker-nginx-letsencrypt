@@ -41,6 +41,13 @@ RUN cd /tmp && \
 		mv lua-nginx-module* /usr/local/src/lua-nginx-module && \
 		rm -f v0.10.7*
 
+# Download the nginx_set_misc module
+RUN cd /tmp && \
+		wget --quiet https://github.com/openresty/set-misc-nginx-module/archive/v0.31.tar.gz && \
+		tar xzf v0.31* && \
+		mv set-misc-nginx-module-* /usr/local/src/set-misc-nginx-module && \
+		rm -f v0.31*
+
 # Download the latest source and build it
 RUN nginxVersion="1.11.10" && \
     cd /usr/local/src && \
@@ -52,6 +59,7 @@ RUN nginxVersion="1.11.10" && \
       --with-ld-opt="-Wl,-rpath,$LUAJIT_LIB" \
       --add-module=/usr/local/src/lua-nginx-module 					\
       --add-module=/usr/local/src/ngx-devel-kit							\
+      --add-module=/usr/local/src/set-misc-nginx-module			\
       --user=nginx                          								\
       --group=nginx                        	 								\
       --prefix=/usr/share/nginx                   					\
@@ -63,6 +71,7 @@ RUN nginxVersion="1.11.10" && \
       --http-log-path=/var/log/nginx/access.log 						\
       --with-http_gzip_static_module        								\
       --with-http_stub_status_module        								\
+      --with-http_sub_module                                \
       --with-http_ssl_module                								\
       --with-pcre                           								\
       --with-file-aio                       								\
