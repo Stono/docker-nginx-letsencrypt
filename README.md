@@ -1,5 +1,5 @@
 # nginx
-The purpose of this repository is to create an easy to use Nginx reverse proxy, which can generate certificates using letsencrypt [letsencrypt](https://letsencrypt.org/), and also give you a nice shiny a+ on observatory.
+The purpose of this repository is to create an easy to use Nginx reverse proxy, which can generate certificates using letsencrypt [letsencrypt](https://letsencrypt.org/), and also give you a nice shiny a+ on [observatory](https://observatory.mozilla.org/).
 
 ![observatory](observatory.png)
 
