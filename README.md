@@ -79,7 +79,8 @@ There are some optional paramters:
   - default: Should this be the default site for none FQDN matches
   - redirectInsecure: Should we send port 80 requests to 443
   - useHsts: Should the https site send a HSTS header
-  - useCsp: Will enable the Content-Security-Policy header with the reccomended default policy "default-src 'none'; img-src 'self'; script-src 'self'; style-src 'self'" 
+  - useCsp: Will enable the Content-Security-Policy header with the reccomended default policy "default-src 'none'; img-src 'self'; script-src 'self'; style-src 'self'"
+  - csp: Override the csp string 
   - other_server: Arbitary lines to add to the server block
 
 ## Volumes

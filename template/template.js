@@ -2,8 +2,8 @@ let Handlebars = require('handlebars');
 let fs = require('fs');
 let sslTemplate = fs.readFileSync('/usr/local/etc/nginx/ssl.default.conf', 'utf-8');
 let redirectTemplate = fs.readFileSync('/usr/local/etc/nginx/redirect.default.conf', 'utf-8');
-let sslSource = Handlebars.compile(sslTemplate);
-let redirectSource = Handlebars.compile(redirectTemplate);
+let sslSource = Handlebars.compile(sslTemplate, {noEscape: true});
+let redirectSource = Handlebars.compile(redirectTemplate, {noEscape: true});
 let config;
 
 if(fs.existsSync('/config/config.json')) {
@@ -58,6 +58,7 @@ let doRedirectSite = site => {
 Object.keys(config).forEach(key => {
   let site = config[key];
   target = "/etc/nginx/conf.d/" + site.fqdn + ".conf";
+  site.csp = site.csp || "default-src 'self' wss: 'nonce-$cspNonce'";
   doSelfSigned(site.fqdn);
   if(site.redirect) {
     doRedirectSite(site);
