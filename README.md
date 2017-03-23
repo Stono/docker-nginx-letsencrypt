@@ -63,8 +63,8 @@ services:
   nginx:
     image: stono/docker-nginx-letsencrypt
     restart: always
-	volumes:
-	  - ./certs:/etc/letsencrypt/live
+  volumes:
+    - ./certs:/etc/letsencrypt/live
     - ./config.js:/config/config.js
     environment:
       - LETSENCRYPT_EMAIL=youremail@yourdomain.com
