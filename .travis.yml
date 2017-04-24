@@ -22,7 +22,7 @@ install:
   - docker tag stono/docker-nginx-letsencrypt:latest stono/docker-nginx-letsencrypt:$CONTAINER_VERSION
 
 script:
-  - docker images | grep -q docker-nginx-letsencrypt:$CONTAINER_VERSION
+  - docker images | grep -q docker-nginx-letsencrypt | grep -q $CONTAINER_VERSION
 
 after_success:
   - docker push stono/docker-nginx-letsencrypt
