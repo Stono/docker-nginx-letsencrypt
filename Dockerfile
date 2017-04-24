@@ -16,6 +16,7 @@ RUN groupadd nginx && \
     useradd -g nginx nginx
 
 # Download LUA JIT
+# http://luajit.org/download.html
 RUN cd /tmp && \
 		wget --quiet http://luajit.org/download/LuaJIT-2.1.0-beta2.tar.gz && \
 		tar xzf Lua* && \
@@ -28,6 +29,7 @@ ENV LUAJIT_LIB=/usr/local/lib
 ENV LUAJIT_INC=/usr/local/include/luajit-2.1
 
 # Download NGX Dev kit
+# https://github.com/simpl/ngx_devel_kit/releases
 RUN cd /tmp && \
 		wget --quiet https://github.com/simpl/ngx_devel_kit/archive/v0.3.0.tar.gz && \
 		tar xzf v0.3.0* && \
@@ -35,25 +37,30 @@ RUN cd /tmp && \
 		rm -f v0.3.0*
 
 # Download NGX_Lua
+# https://github.com/openresty/lua-nginx-module/releases
+ENV LUA_VERSION=0.10.8
 RUN cd /tmp && \
-		wget --quiet https://github.com/openresty/lua-nginx-module/archive/v0.10.7.tar.gz && \
-		tar xzf v0.10.7* && \
+		wget --quiet https://github.com/openresty/lua-nginx-module/archive/v$LUA_VERSION.tar.gz && \
+		tar xzf v$LUA_VERSION* && \
 		mv lua-nginx-module* /usr/local/src/lua-nginx-module && \
-		rm -f v0.10.7*
+		rm -f v$LUA_VERSION*
 
 # Download the nginx_set_misc module
+# https://github.com/openresty/set-misc-nginx-module/releases
+ENV MISC_VERSION=0.31
 RUN cd /tmp && \
-		wget --quiet https://github.com/openresty/set-misc-nginx-module/archive/v0.31.tar.gz && \
-		tar xzf v0.31* && \
+		wget --quiet https://github.com/openresty/set-misc-nginx-module/archive/v$MISC_VERSION.tar.gz && \
+		tar xzf v$MISC_VERSION* && \
 		mv set-misc-nginx-module-* /usr/local/src/set-misc-nginx-module && \
-		rm -f v0.31*
+		rm -f v$MISC_VERSION*
 
 # Download the latest source and build it
-RUN nginxVersion="1.11.10" && \
-    cd /usr/local/src && \
-    wget --quiet http://nginx.org/download/nginx-$nginxVersion.tar.gz && \
-    tar -xzf nginx-$nginxVersion.tar.gz && \
-    ln -sf nginx-$nginxVersion nginx && \
+# https://nginx.org/en/download.html
+ENV NGINX_VERSION=1.11.10
+RUN cd /usr/local/src && \
+    wget --quiet http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz && \
+    tar -xzf nginx-$NGINX_VERSION.tar.gz && \
+    ln -sf nginx-$NGINX_VERSION nginx && \
     cd nginx && \
     ./configure \
       --with-ld-opt="-Wl,-rpath,$LUAJIT_LIB" \
