@@ -5,7 +5,7 @@ services:
 
 env:
   global:
-    - CONTAINER_VERSION=1.11.10-14
+    - CONTAINER_VERSION=1.11.10-15
 
 notifications:
   email: false

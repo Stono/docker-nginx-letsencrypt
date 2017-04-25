@@ -54,6 +54,20 @@ RUN cd /tmp && \
 		mv set-misc-nginx-module-* /usr/local/src/set-misc-nginx-module && \
 		rm -f v$MISC_VERSION*
 
+# Download the nginx pagespeed module 
+# https://modpagespeed.com/doc/release_notes 
+ENV NGX_PAGESPEED=1.12.34.2
+RUN cd /tmp && \
+		wget --quiet https://github.com/pagespeed/ngx_pagespeed/archive/v$NGX_PAGESPEED-beta.zip && \
+    unzip v$NGX_PAGESPEED-beta.zip && \
+    rm *.zip && \
+    cd ngx_pagespeed-*-beta && \
+    psol_url=https://dl.google.com/dl/page-speed/psol/$NGX_PAGESPEED.tar.gz && \
+    [ -e scripts/format_binary_url.sh ] && psol_url=$(scripts/format_binary_url.sh PSOL_BINARY_URL) && \
+    wget --quiet ${psol_url} && \
+    tar -xzvf $(basename ${psol_url}) && \
+    mv /tmp/ngx_pagespeed-* /usr/local/src/ngx-pagespeed
+ 
 # Download the latest source and build it
 # https://nginx.org/en/download.html
 ENV NGINX_VERSION=1.11.10
@@ -67,6 +81,7 @@ RUN cd /usr/local/src && \
       --add-module=/usr/local/src/lua-nginx-module 					\
       --add-module=/usr/local/src/ngx-devel-kit							\
       --add-module=/usr/local/src/set-misc-nginx-module			\
+      --add-module=/usr/local/src/ngx-pagespeed			        \
       --user=nginx                          								\
       --group=nginx                        	 								\
       --prefix=/usr/share/nginx                   					\
