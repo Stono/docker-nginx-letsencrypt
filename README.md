@@ -39,6 +39,7 @@ module.exports = {
     redirectInsecure: true,
     useHsts: true,
     useCsp: true,
+    usePagespeed: true,
     csp: "default-src 'self' wss: https://fonts.gstatic.com https://fonts.googleapis.com https://code.jquery.com https://s3-eu-west-1.amazonaws.com https://karlstoney.disqus.com 'nonce-$cspNonce'",
     default: true,
     upstreams: {
@@ -89,6 +90,7 @@ There are some optional paramters:
   - useCsp: Will enable the Content-Security-Policy header with the reccomended default policy "default-src 'none'; img-src 'self'; script-src 'self'; style-src 'self'"
   - csp: Override the csp string
   - other_server: Arbitary lines to add to the server block
+  - usePagespeed: If we should enable auto page speed improvements using googles PageSpeed module 
 
 #### Notes about Content Security Policy
 Nginx has been compiled to generate a Content Security Policy nonce, this is expose in the nginx configuration as $cspNonce.  Nginx will look through your upstream and effectively find and replace a `**CSP_NONCE**` string, with the actual nonce.  This will allow you to use inline blocks and styles if you need to, for example:
