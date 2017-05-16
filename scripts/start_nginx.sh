@@ -1,7 +1,11 @@
 #!/bin/bash
 sleep 2
+mkdir -p /var/log/nginx
 mkdir -p /mnt/live
 mkdir -p /mnt/html
+chown -R nginx:nginx /var/log/nginx
+chown -R nginx:nginx /mnt/live
+chown -R nginx:nginx /mnt/html
 
 source /usr/local/bin/nginx_common.sh
 set -e

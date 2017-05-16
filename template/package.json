@@ -25,6 +25,7 @@
   "keywords": [],
   "license": "MIT",
   "dependencies": {
+    "async": "^2.4.0",
     "handlebars": "^4.0.6"
   }
 }
