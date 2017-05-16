@@ -12,7 +12,7 @@ mkdir -p /mnt/live/$FQDN
 cd /mnt/live/$FQDN
 simp_le \
   --email $LETSENCRYPT_EMAIL \
-  -f account_key.json \
+  -f /mnt/live/account_key.json \
   -f fullchain.pem \
   -f key.pem \
   -d $FQDN \
