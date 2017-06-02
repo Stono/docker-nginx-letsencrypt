@@ -7,7 +7,7 @@ MAINTAINER Karl Stoney <me@karlstoney.com>
 RUN yum -y -q update && \
     yum -y -q remove iputils && \
     yum -y -q install wget epel-release openssl openssl-devel tar unzip \
-							libffi-devel python-devel redhat-rpm-config \
+							libffi-devel python-devel redhat-rpm-config git-core \
 							gcc gcc-c++ make zlib-devel pcre-devel ca-certificates && \
     yum -y -q clean all
 
@@ -110,13 +110,11 @@ RUN wget --quiet https://bootstrap.pypa.io/get-pip.py && \
     python get-pip.py
 
 # Download and setup lets encrypt
-RUN yum -y -q install git-core && \
-    pip install 'acme>=0.4.1,<0.9' && \
+RUN pip install 'acme>=0.4.1,<0.9' && \
     mkdir -p /tmp/src && \
     git clone https://github.com/zenhack/simp_le /tmp/src/simp_le && \
     cd /tmp/src/simp_le && \
     python ./setup.py install && \
-    yum -y -q remove git-core && \
     yum -y -q clean all
 
 # Remove build tools from a public facing weberver
@@ -166,5 +164,14 @@ COPY template/template.js /template/template.js
 # Copy default conf
 COPY ssl.default.conf /usr/local/etc/nginx
 COPY redirect.default.conf /usr/local/etc/nginx
+
+RUN cd /usr/local/share && \
+    git clone https://github.com/mariusv/nginx-badbot-blocker.git && \
+    cd nginx-badbot-blocker && \
+    git checkout f64d4f9f74a1a845b76b4c43012e3636f28545f2 && \
+    cd /etc/nginx/conf.d && \
+    ln -sf /usr/local/share/nginx-badbot-blocker/VERSION_2/conf.d/blacklist.conf blacklist.conf && \
+    cd /etc/nginx && \
+    ln -sf /usr/local/share/nginx-badbot-blocker/VERSION_2/bots.d bots.d
 
 CMD ["/usr/local/bin/start_nginx.sh"]
