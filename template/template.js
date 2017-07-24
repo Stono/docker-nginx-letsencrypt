@@ -47,6 +47,7 @@ const doSslSite = site => {
   site.paths = Object.keys(site.paths).map(route => {
     return {
       path: route,
+      rewrite: (route === '/' ? false : true),
       upstream: site.paths[route],
       fqdn: site.fqdn
     };
